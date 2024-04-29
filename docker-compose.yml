@@ -1,0 +1,42 @@
+version: '3'
+
+volumes:
+ nextcloud:
+ db:
+
+services:
+
+ db:
+   image: postgres:12
+   restart: always
+   volumes:
+    #  - <drive_mount_point>/config/PostgreSQL:/var/lib/postgresql/data
+     - /media/hdd/config/PostgreSQL:/var/lib/postgresql/data
+   environment:
+     - POSTGRES_DB=nextcloud
+     - POSTGRES_USER=nextcloud
+     - POSTGRES_PASSWORD=change_this_password
+
+ nextcloud:
+   image: nextcloud:latest
+   restart: always
+   ports:
+     - 8080:80
+   links:
+     - db
+   volumes:
+     - nextcloud:/var/www/html
+    #  - <storage_mount_point>/config/Nextcloud:/var/www/html/config
+     - /media/hdd/config/Nextcloud:/var/www/html/config
+    #  - <storage_mount_point>/Nextcloud:/var/www/html/data
+     - /media/hdd/Nextcloud:/var/www/html/data
+   environment:
+     - POSTGRES_HOST=db
+     - POSTGRES_DB=nextcloud
+     - POSTGRES_USER=nextcloud
+     - POSTGRES_PASSWORD=change_this_password
+     - REDIS_HOST=redis
+
+ redis:
+   image: redis:alpine
+   restart: always
